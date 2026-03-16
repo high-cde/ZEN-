@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ZEN Framework</title>
+
+<style>
+    body {
+        margin: 0;
+        font-family: "Inter", sans-serif;
+        background: #0d0d0d;
+        color: #e6e6e6;
+        overflow-x: hidden;
+    }
+
+    header {
+        padding: 40px 20px;
+        text-align: center;
+        background: linear-gradient(135deg, #111, #1a1a1a);
+        border-bottom: 1px solid #222;
+    }
+
+    h1 {
+        font-size: 3rem;
+        margin: 0;
+        letter-spacing: 2px;
+        text-transform: uppercase;
+        background: linear-gradient(90deg, #fff, #888);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+    }
+
+    h2 {
+        margin-top: 60px;
+        font-size: 2rem;
+        text-align: center;
+        color: #fff;
+    }
+
+    p {
+        max-width: 800px;
+        margin: 10px auto;
+        text-align: center;
+        color: #ccc;
+        line-height: 1.6;
+    }
+
+    .section {
+        padding: 60px 20px;
+    }
+
+    .grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+        gap: 20px;
+        max-width: 1100px;
+        margin: 40px auto;
+    }
+
+    .card {
+        background: #141414;
+        padding: 25px;
+        border-radius: 12px;
+        border: 1px solid #222;
+        transition: 0.3s;
+    }
+
+    .card:hover {
+        transform: translateY(-5px);
+        border-color: #444;
+    }
+
+    .card h3 {
+        margin-top: 0;
+        color: #fff;
+    }
+
+    .btn {
+        display: inline-block;
+        padding: 12px 25px;
+        margin: 20px 10px;
+        border-radius: 8px;
+        text-decoration: none;
+        font-weight: bold;
+        transition: 0.3s;
+        border: 1px solid #444;
+        color: #fff;
+    }
+
+    .btn:hover {
+        background: #fff;
+        color: #000;
+    }
+
+    footer {
+        text-align: center;
+        padding: 30px;
+        margin-top: 40px;
+        border-top: 1px solid #222;
+        color: #555;
+    }
+</style>
+</head>
+
+<body>
+
+<header>
+    <h1>ZEN Framework</h1>
+    <p>Il linguaggio. Il sistema operativo. L’ecosistema vivente.</p>
+    <a href="https://github.com/high-cde/ZEN" class="btn">GitHub Repo</a>
+    <a href="#modules" class="btn">Moduli</a>
+    <a href="#os" class="btn">zOS</a>
+</header>
+
+<section class="section" id="intro">
+    <h2>Cos'è ZEN?</h2>
+    <p>
+        ZEN è un ecosistema modulare composto da linguaggio, runtime, OS, AI interna,
+        filesystem virtuale, database nativo e servizi autonomi.  
+        Ogni componente si costruisce, si ripara e si ottimizza da solo.
+    </p>
+</section>
+
+<section class="section" id="modules">
+    <h2>Moduli Principali</h2>
+    <div class="grid">
+        <div class="card">
+            <h3>zVM</h3>
+            <p>Virtual Machine stack-based per esecuzione bytecode ZEN.</p>
+        </div>
+        <div class="card">
+            <h3>zASM</h3>
+            <p>Assembler e disassembler ufficiale del linguaggio.</p>
+        </div>
+        <div class="card">
+            <h3>zNET</h3>
+            <p>Networking astratto, mesh e message passing.</p>
+        </div>
+        <div class="card">
+            <h3>zSEC</h3>
+            <p>Sandbox, permessi granulari e sicurezza del runtime.</p>
+        </div>
+        <div class="card">
+            <h3>zBOOT</h3>
+            <p>Bootloader del micro‑OS GENESIS.</p>
+        </div>
+    </div>
+</section>
+
+<section class="section" id="advanced">
+    <h2>Moduli Avanzati</h2>
+    <div class="grid">
+        <div class="card">
+            <h3>zAI</h3>
+            <p>Motore AI interno: analisi AST, ottimizzazione e auto‑documentazione.</p>
+        </div>
+        <div class="card">
+            <h3>zDB</h3>
+            <p>Database nativo key-value e document store.</p>
+        </div>
+        <div class="card">
+            <h3>zFS</h3>
+            <p>Filesystem virtuale in memoria.</p>
+        </div>
+        <div class="card">
+            <h3>zUI</h3>
+            <p>Toolkit UI astratto con widget e layout engine.</p>
+        </div>
+    </div>
+</section>
+
+<section class="section" id="os">
+    <h2>zOS — ZEN Operating System</h2>
+    <p>
+        Kernel modulare, scheduler, memory manager, process manager, device manager,
+        shell e init system.  
+        Completato da servizi autonomi: logger, networkd, timed, eventd e registry.
+    </p>
+</section>
+
+<footer>
+    © 2026 ZEN Project — Powered by High
+</footer>
+
+</body>
+</html>
