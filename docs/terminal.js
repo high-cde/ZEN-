@@ -20,11 +20,11 @@ function zen_exec(code) {
         } else if (t === "print") {
             return stack.pop();
         } else if (t === "help") {
-            return "Comandi disponibili: + - * / print help info modules";
+            return "Comandi: + - * / print help info modules";
         } else if (t === "info") {
-            return "ZEN Framework v1.0 — CLI Browser Edition";
+            return "ZEN Framework v2 — CLI Browser Edition";
         } else if (t === "modules") {
-            return "[zvm, zasm, znet, zsec, zboot, zai, zdb, zfs, zui, zos, zos_services]";
+            return "[zvm, zasm, znet, zsec, zboot, zai, zdb, zfs, zui, zos]";
         } else {
             return "Errore: comando sconosciuto '" + t + "'";
         }

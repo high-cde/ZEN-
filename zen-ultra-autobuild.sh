@@ -1,9 +1,21 @@
 #!/bin/bash
 
-echo "=== ZEN ULTRA AUTOBUILD — TERMINALE + CLI + SITE + COMMIT ==="
+echo "=== ZEN ULTRA AUTOBUILD v2 — FULL ECOSYSTEM REBUILD ==="
 
 ###############################################
-# 1) CREAZIONE TERMINALE ZEN REALE (JS)
+# 0) AUTO-SYNC & AUTO-REPAIR
+###############################################
+
+echo "[SYNC] Sincronizzazione repository..."
+
+git pull --rebase --autostash || {
+    echo "[SYNC] Rebase fallito, tentativo di riparazione..."
+    git rebase --abort 2>/dev/null
+    git pull --autostash --no-rebase
+}
+
+###############################################
+# 1) TERMINALE ZEN REALE
 ###############################################
 
 echo "[TERMINAL] Aggiornamento terminale ZEN..."
@@ -33,11 +45,11 @@ function zen_exec(code) {
         } else if (t === "print") {
             return stack.pop();
         } else if (t === "help") {
-            return "Comandi disponibili: + - * / print help info modules";
+            return "Comandi: + - * / print help info modules";
         } else if (t === "info") {
-            return "ZEN Framework v1.0 — CLI Browser Edition";
+            return "ZEN Framework v2 — CLI Browser Edition";
         } else if (t === "modules") {
-            return "[zvm, zasm, znet, zsec, zboot, zai, zdb, zfs, zui, zos, zos_services]";
+            return "[zvm, zasm, znet, zsec, zboot, zai, zdb, zfs, zui, zos]";
         } else {
             return "Errore: comando sconosciuto '" + t + "'";
         }
@@ -63,7 +75,7 @@ function zen_terminal_init() {
 EOF
 
 ###############################################
-# 2) AGGIORNAMENTO INDEX CON TERMINALE REALE
+# 2) INDEX HTML
 ###############################################
 
 echo "[SITE] Aggiornamento index.html..."
@@ -75,7 +87,7 @@ cat > docs/index.html << 'EOF'
 <title>ZEN Framework</title>
 <link rel="stylesheet" href="style.css">
 <style>
-.hero { padding:80px 20px; text-align:center; background:#111; }
+.hero { padding:80px 20px; text-align:center; background:#111; color:white; }
 .section-title { font-size:2rem; text-align:center; margin-bottom:20px; }
 .terminal { background:#000; color:#0f0; padding:20px; border-radius:10px;
             font-family:monospace; border:1px solid #0f0; max-width:900px; margin:auto; white-space:pre-wrap; }
@@ -96,8 +108,8 @@ cat > docs/index.html << 'EOF'
 </header>
 
 <div class="hero">
-    <h1>Il linguaggio. Il sistema operativo. L’ecosistema vivente.</h1>
-    <p>ZEN ora include un terminale reale nel browser.</p>
+    <h1>ZEN Framework v2</h1>
+    <p>Il linguaggio. Il sistema operativo. L’ecosistema vivente.</p>
 </div>
 
 <div class="section">
@@ -121,22 +133,47 @@ $ Digita un comando e premi INVIO
 EOF
 
 ###############################################
-# 3) BUILD COMPLETO
+# 3) BUILD COMPLETO DEL CORE
 ###############################################
 
-echo "[BUILD] Compilazione core..."
+echo "[BUILD] Ricostruzione completa del core..."
+
+rm -rf build
 mkdir -p build/core
 cp -r src/* build/core/
 
 ###############################################
-# 4) COMMIT + PUSH AUTOMATICO
+# 4) DOCUMENTAZIONE AUTOMATICA
+###############################################
+
+echo "[DOCS] Generazione documentazione..."
+
+cat > docs/docs.html << 'EOF'
+<!DOCTYPE html>
+<html>
+<head>
+<title>ZEN Docs</title>
+</head>
+<body>
+<h1>Documentazione ZEN Framework v2</h1>
+<p>Questa documentazione è generata automaticamente dall'autobuild.</p>
+<p>Moduli disponibili: zvm, zasm, znet, zsec, zboot, zai, zdb, zfs, zui, zos</p>
+</body>
+</html>
+EOF
+
+###############################################
+# 5) COMMIT + PUSH
 ###############################################
 
 echo "[GIT] Commit & push..."
 
 git add .
-git commit -m "ZEN ULTRA AUTOBUILD: terminale reale + CLI + site update"
-git push
+git commit -m "ZEN ULTRA AUTOBUILD v2: full rebuild + autosync + docs + terminal" || true
+git push || {
+    echo "[GIT] Push fallito, tentativo di riparazione..."
+    git pull --rebase --autostash
+    git push
+}
 
 echo "=== COMPLETATO ==="
-
