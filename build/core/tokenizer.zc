@@ -1,32 +1,13 @@
-KEYWORDS = ["node","mesh","shield","worker","start","sync","raise","spawn","if","type"]
-
-class Token:
-    def __init__(self, type, value):
-        self.type = type
-        self.value = value
-
-def classify(word):
-    if word in KEYWORDS:
-        return Token("KEYWORD", word)
-    if word.isalpha():
-        return Token("IDENTIFIER", word)
-    return Token("UNKNOWN", word)
-
-def tokenize(source):
+fn tokenize(code) {
     tokens = []
     current = ""
-    for char in source:
-        if char.isspace():
-            if current:
-                tokens.append(classify(current))
-                current = ""
-        elif char in [".", ":"]:
-            if current:
-                tokens.append(classify(current))
-                current = ""
-            tokens.append(Token("SYMBOL", char))
-        else:
-            current += char
-    if current:
-        tokens.append(classify(current))
+    for c in code {
+        if c in [" ", "\n", "\t"] {
+            if current != "" { tokens.push(current); current = "" }
+        } else {
+            current += c
+        }
+    }
+    if current != "" { tokens.push(current) }
     return tokens
+}
