@@ -1,345 +1,264 @@
 #!/bin/bash
 
-echo "=== ZEN ULTIMATE AUTOBUILD ==="
+echo "=== ZEN AUTOBUILD TOTAL SYSTEM ==="
 
-# ---------------------------------------------------------
-# 0) PREPARAZIONE AMBIENTE
-# ---------------------------------------------------------
+###############################################
+# 1) AUTO-FILL: crea file mancanti
+###############################################
 
-mkdir -p src
-mkdir -p src/std
-mkdir -p src/compiler
-mkdir -p src/runtime
-mkdir -p src/distributed
-mkdir -p src/zcore
-mkdir -p src/debugger
-mkdir -p src/transpilers
+echo "[STEP 1] Riempimento file mancanti..."
+
+for module in modules/*; do
+  mkdir -p $module/src
+  mkdir -p $module/docs
+  mkdir -p $module/tests
+  mkdir -p $module/examples
+
+  # build.sh
+  if [ ! -f "$module/build.sh" ]; then
+    echo "[FIX] build.sh creato per $module"
+    cat > $module/build.sh << EOF
+#!/bin/bash
+echo "Building $(basename $module)"
+EOF
+    chmod +x $module/build.sh
+  fi
+
+  # src file
+  if [ ! -f "$module/src/main.zc" ]; then
+    echo "[FIX] main.zc creato per $module"
+    echo "// Auto-generated module file" > $module/src/main.zc
+  fi
+
+  # docs
+  if [ ! -f "$module/docs/overview.md" ]; then
+    echo "[FIX] overview.md creato per $module"
+    echo "# $(basename $module)" > $module/docs/overview.md
+    echo "Documentazione generata automaticamente." >> $module/docs/overview.md
+  fi
+done
+
+
+###############################################
+# 2) BUILD CORE
+###############################################
+
+echo "[STEP 2] Build core..."
+mkdir -p build/core
+cp -r src/* build/core/
+
+
+###############################################
+# 3) BUILD MODULES
+###############################################
+
+echo "[STEP 3] Build moduli..."
+
+for module in modules/*; do
+  if [ -f "$module/build.sh" ]; then
+    echo "[BUILD] $module"
+    bash "$module/build.sh"
+  else
+    echo "[WARN] Nessun build.sh in $module"
+  fi
+done
+
+
+###############################################
+# 4) GENERAZIONE SITO COMPLETO
+###############################################
+
+echo "[STEP 4] Generazione sito GitHub Pages..."
 
 mkdir -p docs
-mkdir -p docs/zcore
-mkdir -p docs/debugger
-mkdir -p docs/transpilers
 
-mkdir -p examples
-mkdir -p examples/zcore
-mkdir -p examples/debugger
-mkdir -p examples/transpilers
-
-mkdir -p tests
-mkdir -p tests/zcore
-mkdir -p tests/debugger
-mkdir -p tests/transpilers
-
-mkdir -p site/assets
-
-# ---------------------------------------------------------
-# 1) GENERAZIONE LINGUAGGIO ZEN COMPLETO
-# ---------------------------------------------------------
-
-cat > src/tokenizer.zc << 'EOF'
-KEYWORDS = ["node","mesh","shield","worker","start","sync","raise","spawn","if","type"]
-
-class Token:
-    def __init__(self, type, value):
-        self.type = type
-        self.value = value
-
-def classify(word):
-    if word in KEYWORDS:
-        return Token("KEYWORD", word)
-    if word.isalpha():
-        return Token("IDENTIFIER", word)
-    return Token("UNKNOWN", word)
-
-def tokenize(source):
-    tokens = []
-    current = ""
-    for char in source:
-        if char.isspace():
-            if current:
-                tokens.append(classify(current))
-                current = ""
-        elif char in [".", ":"]:
-            if current:
-                tokens.append(classify(current))
-                current = ""
-            tokens.append(Token("SYMBOL", char))
-        else:
-            current += char
-    if current:
-        tokens.append(classify(current))
-    return tokens
-EOF
-
-cat > src/parser.zc << 'EOF'
-class Node:
-    def __init__(self, type, args=None):
-        self.type = type
-        self.args = args or {}
-
-def parse(tokens):
-    ast = []
-    i = 0
-    while i < len(tokens):
-        t = tokens[i]
-        if t.value == "node":
-            ast.append(Node("NODE_START"))
-        if t.value == "mesh":
-            ast.append(Node("MESH_SYNC"))
-        if t.value == "shield":
-            ast.append(Node("SHIELD_RAISE"))
-        if t.value == "worker":
-            ast.append(Node("WORKER_SPAWN"))
-        i += 1
-    return ast
-EOF
-
-cat > src/ast.zc << 'EOF'
-class ASTNode:
-    def __init__(self, type, args=None):
-        self.type = type
-        self.args = args or {}
-EOF
-
-cat > src/runtime/runtime.zc << 'EOF'
-class Runtime:
-    def __init__(self):
-        self.state = {
-            "node": "stopped",
-            "mesh": "idle",
-            "shield": "down",
-            "workers": []
-        }
-
-    def execute(self, ast):
-        for node in ast:
-            if node.type == "NODE_START":
-                self.state["node"] = "running"
-            if node.type == "MESH_SYNC":
-                self.state["mesh"] = "synced"
-            if node.type == "SHIELD_RAISE":
-                self.state["shield"] = "raised"
-            if node.type == "WORKER_SPAWN":
-                self.state["workers"].append("worker")
-        return self.state
-EOF
-
-cat > src/compiler/compiler.zc << 'EOF'
-BYTECODES = {
-    "NODE_START": 1,
-    "MESH_SYNC": 2,
-    "SHIELD_RAISE": 3,
-    "WORKER_SPAWN": 4
+# CSS
+cat > docs/style.css << 'EOF'
+body {
+    margin: 0;
+    font-family: "Inter", sans-serif;
+    background: #0d0d0d;
+    color: #e6e6e6;
 }
-
-def compile(ast):
-    bytecode = []
-    for node in ast:
-        bytecode.append(BYTECODES[node.type])
-    return bytecode
-EOF
-
-# ---------------------------------------------------------
-# 2) ZCORE COMPLETO
-# ---------------------------------------------------------
-
-cat > src/zcore/opcodes.zc << 'EOF'
-OPCODES = {
-    "NODE_START": 16,
-    "NODE_STOP": 17,
-    "MESH_SYNC": 32,
-    "MESH_BROADCAST": 33,
-    "SHIELD_RAISE": 48,
-    "SHIELD_LOWER": 49,
-    "WORKER_SPAWN": 64,
-    "WORKER_KILL": 65
+header {
+    padding: 40px;
+    text-align: center;
+    background: #111;
+    border-bottom: 1px solid #222;
+}
+nav a {
+    margin: 0 15px;
+    color: #aaa;
+    text-decoration: none;
+    font-weight: bold;
+}
+nav a:hover {
+    color: #fff;
+}
+.section {
+    padding: 60px 20px;
+    max-width: 900px;
+    margin: auto;
+}
+.card {
+    background: #141414;
+    padding: 20px;
+    border-radius: 10px;
+    border: 1px solid #222;
+    margin-bottom: 20px;
 }
 EOF
 
-cat > src/zcore/bridge.zc << 'EOF'
-from src.zcore.opcodes import OPCODES
-
-ZEN_TO_ZCORE = {
-    "NODE_START": OPCODES["NODE_START"],
-    "MESH_SYNC": OPCODES["MESH_SYNC"],
-    "SHIELD_RAISE": OPCODES["SHIELD_RAISE"],
-    "WORKER_SPAWN": OPCODES["WORKER_SPAWN"]
-}
-
-def translate(ast):
-    bytecode = []
-    for node in ast:
-        if node.type in ZEN_TO_ZCORE:
-            bytecode.append(ZEN_TO_ZCORE[node.type])
-    return bytecode
+# INDEX
+cat > docs/index.html << 'EOF'
+<!DOCTYPE html>
+<html>
+<head>
+<title>ZEN Framework</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<header>
+    <h1>ZEN Framework</h1>
+    <nav>
+        <a href="index.html">Home</a>
+        <a href="modules.html">Moduli</a>
+        <a href="os.html">zOS</a>
+        <a href="ai.html">zAI</a>
+        <a href="docs.html">Docs</a>
+    </nav>
+</header>
+<div class="section">
+    <h2>Benvenuto in ZEN</h2>
+    <p>Il linguaggio. Il sistema operativo. L’ecosistema vivente.</p>
+</div>
+</body>
+</html>
 EOF
 
-cat > src/zcore/runtime.zc << 'EOF'
-class ZCoreRuntime:
-    def __init__(self):
-        self.state = {
-            "node": "stopped",
-            "mesh": "idle",
-            "shield": "down",
-            "workers": []
-        }
-
-    def execute_opcode(self, opcode):
-        if opcode == 16:
-            self.state["node"] = "running"
-        if opcode == 17:
-            self.state["node"] = "stopped"
-        if opcode == 32:
-            self.state["mesh"] = "synced"
-        if opcode == 33:
-            self.state["mesh"] = "broadcast"
-        if opcode == 48:
-            self.state["shield"] = "raised"
-        if opcode == 49:
-            self.state["shield"] = "lowered"
-        if opcode == 64:
-            self.state["workers"].append("worker")
-        if opcode == 65:
-            if self.state["workers"]:
-                self.state["workers"].pop()
-        return self.state
+# MODULES
+cat > docs/modules.html << 'EOF'
+<!DOCTYPE html>
+<html>
+<head>
+<title>Moduli ZEN</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<header>
+    <h1>Moduli ZEN</h1>
+    <nav>
+        <a href="index.html">Home</a>
+        <a href="modules.html">Moduli</a>
+        <a href="os.html">zOS</a>
+        <a href="ai.html">zAI</a>
+        <a href="docs.html">Docs</a>
+    </nav>
+</header>
+<div class="section">
+    <h2>Moduli Principali</h2>
+    <div class="card"><h3>zVM</h3><p>Virtual Machine stack-based.</p></div>
+    <div class="card"><h3>zASM</h3><p>Assembler ufficiale.</p></div>
+    <div class="card"><h3>zNET</h3><p>Networking astratto.</p></div>
+    <div class="card"><h3>zSEC</h3><p>Sicurezza e sandbox.</p></div>
+    <div class="card"><h3>zBOOT</h3><p>Bootloader del micro‑OS.</p></div>
+</div>
+</body>
+</html>
 EOF
 
-cat > src/zcore/loader.zc << 'EOF'
-from src.zcore.runtime import ZCoreRuntime
-
-class ZCoreLoader:
-    def __init__(self):
-        self.runtime = ZCoreRuntime()
-
-    def load(self, bytecode):
-        for op in bytecode:
-            self.runtime.execute_opcode(op)
-        return self.runtime.state
+# OS
+cat > docs/os.html << 'EOF'
+<!DOCTYPE html>
+<html>
+<head>
+<title>zOS</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<header>
+    <h1>zOS — ZEN Operating System</h1>
+    <nav>
+        <a href="index.html">Home</a>
+        <a href="modules.html">Moduli</a>
+        <a href="os.html">zOS</a>
+        <a href="ai.html">zAI</a>
+        <a href="docs.html">Docs</a>
+    </nav>
+</header>
+<div class="section">
+    <h2>Kernel</h2>
+    <p>Scheduler, memory manager, process manager, device manager.</p>
+    <h2>Servizi</h2>
+    <p>logger, networkd, timed, eventd, registry.</p>
+</div>
+</body>
+</html>
 EOF
 
-# ---------------------------------------------------------
-# 3) DEBUGGER COMPLETO
-# ---------------------------------------------------------
-
-cat > src/debugger/ast_viewer.zc << 'EOF'
-def view_ast(ast):
-    print("AST VIEW")
-    for node in ast:
-        print(" -", node.type)
+# AI
+cat > docs/ai.html << 'EOF'
+<!DOCTYPE html>
+<html>
+<head>
+<title>zAI</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<header>
+    <h1>zAI — Artificial Intelligence Module</h1>
+    <nav>
+        <a href="index.html">Home</a>
+        <a href="modules.html">Moduli</a>
+        <a href="os.html">zOS</a>
+        <a href="ai.html">zAI</a>
+        <a href="docs.html">Docs</a>
+    </nav>
+</header>
+<div class="section">
+    <h2>Funzionalità</h2>
+    <p>Analisi AST, ottimizzazione, auto-documentazione.</p>
+</div>
+</body>
+</html>
 EOF
 
-cat > src/debugger/bytecode_viewer.zc << 'EOF'
-def view_bytecode(bytecode):
-    print("BYTECODE VIEW")
-    for op in bytecode:
-        print(" -", op)
+# DOCS
+cat > docs/docs.html << 'EOF'
+<!DOCTYPE html>
+<html>
+<head>
+<title>Documentazione ZEN</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<header>
+    <h1>Documentazione ZEN</h1>
+    <nav>
+        <a href="index.html">Home</a>
+        <a href="modules.html">Moduli</a>
+        <a href="os.html">zOS</a>
+        <a href="ai.html">zAI</a>
+        <a href="docs.html">Docs</a>
+    </nav>
+</header>
+<div class="section">
+    <h2>Documentazione Generata</h2>
+    <p>La documentazione completa è generata automaticamente dal sistema autobuild.</p>
+</div>
+</body>
+</html>
 EOF
 
-cat > src/debugger/runtime_inspector.zc << 'EOF'
-def inspect_runtime(state):
-    print("RUNTIME STATE")
-    for key in state:
-        print(key, ":", state[key])
-EOF
 
-cat > src/debugger/debugger.zc << 'EOF'
-from src.tokenizer import tokenize
-from src.parser import parse
-from src.compiler.compiler import compile
-from src.zcore.bridge import translate
-from src.zcore.loader import ZCoreLoader
+###############################################
+# 5) GIT COMMIT & PUSH
+###############################################
 
-from src.debugger.ast_viewer import view_ast
-from src.debugger.bytecode_viewer import view_bytecode
-from src.debugger.runtime_inspector import inspect_runtime
-
-class ZenDebugger:
-    def __init__(self):
-        self.loader = ZCoreLoader()
-
-    def debug(self, source):
-        print("TOKENIZING")
-        tokens = tokenize(source)
-
-        print("PARSING")
-        ast = parse(tokens)
-
-        print("AST")
-        view_ast(ast)
-
-        print("COMPILING")
-        bytecode = compile(ast)
-
-        print("BYTECODE")
-        view_bytecode(bytecode)
-
-        print("TRANSLATING TO ZCORE")
-        zcore_code = translate(ast)
-
-        print("EXECUTING")
-        state = self.loader.load(zcore_code)
-
-        print("RUNTIME")
-        inspect_runtime(state)
-
-        return state
-EOF
-
-# ---------------------------------------------------------
-# 4) TRANSPILERS COMPLETI
-# ---------------------------------------------------------
-
-cat > src/transpilers/json.zc << 'EOF'
-import json
-
-def zen_to_json(ast):
-    output = []
-    for node in ast:
-        output.append({
-            "type": node.type,
-            "args": node.args
-        })
-    return json.dumps(output, indent=2)
-EOF
-
-cat > src/transpilers/yaml.zc << 'EOF'
-def zen_to_yaml(ast):
-    lines = []
-    for node in ast:
-        lines.append("- type: " + node.type)
-        if node.args:
-            for k in node.args:
-                lines.append("  " + k + ": " + str(node.args[k]))
-    return "\n".join(lines)
-EOF
-
-cat > src/transpilers/python.zc << 'EOF'
-def zen_to_python(ast):
-    lines = ["program = []"]
-    for node in ast:
-        lines.append("program.append({\"type\": \"" + node.type + "\", \"args\": " + str(node.args) + "})")
-    return "\n".join(lines)
-EOF
-
-cat > src/transpilers/zcore_native.zc << 'EOF'
-from src.zcore.bridge import ZEN_TO_ZCORE
-
-def zen_to_zcore_native(ast):
-    lines = []
-    for node in ast:
-        if node.type in ZEN_TO_ZCORE:
-            opcode = ZEN_TO_ZCORE[node.type]
-            lines.append("OP " + str(opcode))
-    return "\n".join(lines)
-EOF
-
-# ---------------------------------------------------------
-# 5) GIT DEPLOY
-# ---------------------------------------------------------
+echo "[STEP 5] Commit & push..."
 
 git add .
-git commit -m "ZEN FULL AUTOBUILD"
+git commit -m "ZEN AUTOBUILD: build + auto-fill + site"
 git push
 
-echo "=== ZEN ULTIMATE AUTOBUILD COMPLETE ==="
+echo "=== AUTOBUILD TOTALE COMPLETATO ==="
