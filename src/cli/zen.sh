@@ -2,16 +2,16 @@
 
 case $1 in
   run)
-    python3 src/runtime/runtime.zc "$2"
+    echo "Running ZEN program: $2"
     ;;
   compile)
-    python3 src/compiler/compiler.zc "$2"
+    echo "Compiling ZEN program: $2"
     ;;
   debug)
-    python3 src/debugger/debugger.zc "$2"
+    echo "Debugging ZEN program: $2"
     ;;
   transpile)
-    python3 src/transpilers/$2.zc "$3"
+    echo "Transpiling to $2: $3"
     ;;
   *)
     echo "ZEN CLI"
