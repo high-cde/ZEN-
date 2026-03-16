@@ -1,1 +1,1 @@
-// Auto-generated module file
+fn zvm_info() { return "ZEN Virtual Machine v1.0" }

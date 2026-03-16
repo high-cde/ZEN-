@@ -1,1 +1,1 @@
-// Auto-generated module file
+fn send(msg) { println("NET SEND: " + msg) }

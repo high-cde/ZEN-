@@ -1,1 +1,1 @@
-// Auto-generated module file
+fn kernel() { println("zOS kernel running") }

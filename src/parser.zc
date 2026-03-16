@@ -1,20 +1,7 @@
-class Node:
-    def __init__(self, type, args=None):
-        self.type = type
-        self.args = args or {}
-
-def parse(tokens):
+fn parse(tokens) {
     ast = []
-    i = 0
-    while i < len(tokens):
-        t = tokens[i]
-        if t.value == "node":
-            ast.append(Node("NODE_START"))
-        if t.value == "mesh":
-            ast.append(Node("MESH_SYNC"))
-        if t.value == "shield":
-            ast.append(Node("SHIELD_RAISE"))
-        if t.value == "worker":
-            ast.append(Node("WORKER_SPAWN"))
-        i += 1
+    for t in tokens {
+        ast.push({ type: "word", value: t })
+    }
     return ast
+}

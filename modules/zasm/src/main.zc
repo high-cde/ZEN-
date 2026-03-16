@@ -1,1 +1,1 @@
-// Auto-generated module file
+fn assemble(code) { return tokenize(code) }

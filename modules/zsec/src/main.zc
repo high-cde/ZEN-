@@ -1,1 +1,1 @@
-// Auto-generated module file
+fn secure(x) { return hash(x) }

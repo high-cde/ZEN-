@@ -1,1 +1,1 @@
-// Auto-generated module file
+fn analyze(ast) { return "AST nodes: " + ast.len() }

@@ -1,1 +1,1 @@
-// Auto-generated module file
+fn boot() { println("zOS booting...") }

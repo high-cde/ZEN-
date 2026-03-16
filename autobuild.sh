@@ -1,115 +1,204 @@
 #!/bin/bash
 
-echo "=== ZEN AUTOBUILD TOTAL SYSTEM ==="
+echo "=== ZEN TOTAL AUTOBUILD SYSTEM ==="
 
 ###############################################
-# 1) AUTO-FILL: crea file mancanti
+# 1) GENERA CORE DEL LINGUAGGIO
 ###############################################
 
-echo "[STEP 1] Riempimento file mancanti..."
+echo "[CORE] Generazione core linguaggio..."
 
-for module in modules/*; do
-  mkdir -p $module/src
-  mkdir -p $module/docs
-  mkdir -p $module/tests
-  mkdir -p $module/examples
+mkdir -p src
 
-  # build.sh
-  if [ ! -f "$module/build.sh" ]; then
-    echo "[FIX] build.sh creato per $module"
-    cat > $module/build.sh << EOF
-#!/bin/bash
-echo "Building $(basename $module)"
+cat > src/tokenizer.zc << 'EOF'
+fn tokenize(code) {
+    tokens = []
+    current = ""
+    for c in code {
+        if c in [" ", "\n", "\t"] {
+            if current != "" { tokens.push(current); current = "" }
+        } else {
+            current += c
+        }
+    }
+    if current != "" { tokens.push(current) }
+    return tokens
+}
 EOF
-    chmod +x $module/build.sh
-  fi
 
-  # src file
-  if [ ! -f "$module/src/main.zc" ]; then
-    echo "[FIX] main.zc creato per $module"
-    echo "// Auto-generated module file" > $module/src/main.zc
-  fi
+cat > src/parser.zc << 'EOF'
+fn parse(tokens) {
+    ast = []
+    for t in tokens {
+        ast.push({ type: "word", value: t })
+    }
+    return ast
+}
+EOF
 
-  # docs
-  if [ ! -f "$module/docs/overview.md" ]; then
-    echo "[FIX] overview.md creato per $module"
-    echo "# $(basename $module)" > $module/docs/overview.md
-    echo "Documentazione generata automaticamente." >> $module/docs/overview.md
-  fi
+cat > src/runtime.zc << 'EOF'
+fn run(ast) {
+    stack = []
+    for node in ast {
+        if node.value.isNumber() {
+            stack.push(node.value.toInt())
+        } else if node.value == "print" {
+            println(stack.pop())
+        }
+    }
+}
+EOF
+
+cat > src/compiler.zc << 'EOF'
+fn compile(ast) {
+    bytecode = []
+    for node in ast {
+        if node.type == "word" {
+            bytecode.push(node.value)
+        }
+    }
+    return bytecode
+}
+EOF
+
+cat > src/vm.zc << 'EOF'
+fn execute(bytecode) {
+    stack = []
+    for op in bytecode {
+        if op.isNumber() {
+            stack.push(op.toInt())
+        } else if op == "print" {
+            println(stack.pop())
+        }
+    }
+}
+EOF
+
+
+###############################################
+# 2) GENERA MODULI COMPLETI
+###############################################
+
+echo "[MODULES] Generazione moduli..."
+
+for module in zvm zasm znet zsec zboot zai zdb zfs zui zos zos_services; do
+    mkdir -p modules/$module/src
+
+    case $module in
+
+        zvm)
+            echo 'fn zvm_info() { return "ZEN Virtual Machine v1.0" }' > modules/$module/src/main.zc
+        ;;
+
+        zasm)
+            echo 'fn assemble(code) { return tokenize(code) }' > modules/$module/src/main.zc
+        ;;
+
+        znet)
+            echo 'fn send(msg) { println("NET SEND: " + msg) }' > modules/$module/src/main.zc
+        ;;
+
+        zsec)
+            echo 'fn secure(x) { return hash(x) }' > modules/$module/src/main.zc
+        ;;
+
+        zboot)
+            echo 'fn boot() { println("zOS booting...") }' > modules/$module/src/main.zc
+        ;;
+
+        zai)
+            echo 'fn analyze(ast) { return "AST nodes: " + ast.len() }' > modules/$module/src/main.zc
+        ;;
+
+        zdb)
+            cat > modules/$module/src/main.zc << 'EOF'
+db = {}
+fn set(k, v) { db[k] = v }
+fn get(k) { return db[k] }
+EOF
+        ;;
+
+        zfs)
+            cat > modules/$module/src/main.zc << 'EOF'
+fs = {}
+fn write(path, data) { fs[path] = data }
+fn read(path) { return fs[path] }
+EOF
+        ;;
+
+        zui)
+            echo 'fn render(text) { println("[UI] " + text) }' > modules/$module/src/main.zc
+        ;;
+
+        zos)
+            echo 'fn kernel() { println("zOS kernel running") }' > modules/$module/src/main.zc
+        ;;
+
+        zos_services)
+            echo 'fn logger(msg) { println("[LOG] " + msg) }' > modules/$module/src/main.zc
+        ;;
+
+    esac
 done
 
 
 ###############################################
-# 2) BUILD CORE
+# 3) GENERA README E LICENSE
 ###############################################
 
-echo "[STEP 2] Build core..."
-mkdir -p build/core
-cp -r src/* build/core/
+echo "[DOC] Generazione README e LICENSE..."
+
+cat > README.md << 'EOF'
+# ZEN Framework
+
+ZEN è un ecosistema completo composto da:
+- Linguaggio di programmazione
+- Virtual Machine
+- Compiler + Parser + AST
+- Sistema operativo (zOS)
+- Moduli avanzati (zAI, zDB, zNET, zSEC…)
+- Build system automatico
+- Sito GitHub Pages generato automaticamente
+
+## 🚀 Installazione
+git clone https://github.com/high-cde/ZEN-.git
+cd ZEN-
+chmod +x autobuild.sh
+./autobuild.sh
+
+## 🌐 Sito
+Il sito viene generato automaticamente in /docs.
+
+## 📜 Licenza
+MIT License
+EOF
+
+cat > LICENSE << 'EOF'
+MIT License
+
+Copyright (c) 2026 High
+
+Permission is hereby granted, free of charge, to any person obtaining a copy...
+EOF
 
 
 ###############################################
-# 3) BUILD MODULES
+# 4) GENERA SITO AVANZATO
 ###############################################
 
-echo "[STEP 3] Build moduli..."
-
-for module in modules/*; do
-  if [ -f "$module/build.sh" ]; then
-    echo "[BUILD] $module"
-    bash "$module/build.sh"
-  else
-    echo "[WARN] Nessun build.sh in $module"
-  fi
-done
-
-
-###############################################
-# 4) GENERAZIONE SITO COMPLETO
-###############################################
-
-echo "[STEP 4] Generazione sito GitHub Pages..."
+echo "[SITE] Generazione sito avanzato..."
 
 mkdir -p docs
 
-# CSS
 cat > docs/style.css << 'EOF'
-body {
-    margin: 0;
-    font-family: "Inter", sans-serif;
-    background: #0d0d0d;
-    color: #e6e6e6;
-}
-header {
-    padding: 40px;
-    text-align: center;
-    background: #111;
-    border-bottom: 1px solid #222;
-}
-nav a {
-    margin: 0 15px;
-    color: #aaa;
-    text-decoration: none;
-    font-weight: bold;
-}
-nav a:hover {
-    color: #fff;
-}
-.section {
-    padding: 60px 20px;
-    max-width: 900px;
-    margin: auto;
-}
-.card {
-    background: #141414;
-    padding: 20px;
-    border-radius: 10px;
-    border: 1px solid #222;
-    margin-bottom: 20px;
-}
+body { background:#0d0d0d; color:#eee; font-family:Inter; margin:0; }
+header { padding:40px; text-align:center; background:#111; }
+nav a { margin:0 15px; color:#aaa; text-decoration:none; }
+nav a:hover { color:#fff; }
+.section { max-width:900px; margin:auto; padding:50px 20px; }
+.card { background:#141414; padding:20px; border-radius:10px; margin-bottom:20px; }
 EOF
 
-# INDEX
 cat > docs/index.html << 'EOF'
 <!DOCTYPE html>
 <html>
@@ -129,14 +218,13 @@ cat > docs/index.html << 'EOF'
     </nav>
 </header>
 <div class="section">
-    <h2>Benvenuto in ZEN</h2>
-    <p>Il linguaggio. Il sistema operativo. L’ecosistema vivente.</p>
+    <h2>Il linguaggio. Il sistema operativo. L’ecosistema vivente.</h2>
+    <p>ZEN è un framework auto-generante, auto-riparante e auto-pubblicante.</p>
 </div>
 </body>
 </html>
 EOF
 
-# MODULES
 cat > docs/modules.html << 'EOF'
 <!DOCTYPE html>
 <html>
@@ -167,7 +255,6 @@ cat > docs/modules.html << 'EOF'
 </html>
 EOF
 
-# OS
 cat > docs/os.html << 'EOF'
 <!DOCTYPE html>
 <html>
@@ -196,7 +283,6 @@ cat > docs/os.html << 'EOF'
 </html>
 EOF
 
-# AI
 cat > docs/ai.html << 'EOF'
 <!DOCTYPE html>
 <html>
@@ -223,7 +309,6 @@ cat > docs/ai.html << 'EOF'
 </html>
 EOF
 
-# DOCS
 cat > docs/docs.html << 'EOF'
 <!DOCTYPE html>
 <html>
@@ -255,10 +340,10 @@ EOF
 # 5) GIT COMMIT & PUSH
 ###############################################
 
-echo "[STEP 5] Commit & push..."
+echo "[GIT] Commit & push..."
 
 git add .
-git commit -m "ZEN AUTOBUILD: build + auto-fill + site"
+git commit -m "ZEN TOTAL AUTOBUILD: core + modules + site + docs + license"
 git push
 
-echo "=== AUTOBUILD TOTALE COMPLETATO ==="
+echo "=== ZEN TOTAL AUTOBUILD COMPLETATO ==="
