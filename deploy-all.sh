@@ -1,24 +1,16 @@
 #!/bin/bash
 
-echo "Running FULL ZEN ECOSYSTEM BUILD and DEPLOY"
+echo "=== ZEN FULL DEPLOY ==="
 
-# ---------------------------------------------------------
-# RUN FULL BUILD
-# ---------------------------------------------------------
-
-if [ -f build-all.sh ]; then
-  bash build-all.sh
-else
-  echo "ERROR: build-all.sh not found"
-  exit 1
-fi
-
-# ---------------------------------------------------------
-# GIT DEPLOY
-# ---------------------------------------------------------
+bash autobuild.sh
+bash build-cli.sh
+bash build-zpm.sh
+bash build-zsl.sh
+bash build-zdsn.sh
+bash build-genesis.sh
 
 git add .
-git commit -m "Full ZEN ecosystem autobuild and deploy"
+git commit -m "ZEN FULL ECOSYSTEM DEPLOY"
 git push
 
-echo "FULL DEPLOY COMPLETE"
+echo "=== DEPLOY COMPLETE ==="
