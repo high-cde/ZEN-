@@ -1,0 +1,12 @@
+import os, json
+
+def install(pkg):
+    print("Installing package:", pkg)
+
+def publish(pkg):
+    print("Publishing package:", pkg)
+
+def list_packages():
+    print("Available packages:")
+    for p in os.listdir("packages"):
+        print(" -", p)
