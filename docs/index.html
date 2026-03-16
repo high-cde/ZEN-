@@ -4,39 +4,10 @@
 <title>ZEN Framework</title>
 <link rel="stylesheet" href="style.css">
 <style>
-.hero {
-    padding: 80px 20px;
-    text-align: center;
-    background: linear-gradient(135deg, #0d0d0d, #1a1a1a);
-    border-bottom: 1px solid #222;
-}
-.hero h1 {
-    font-size: 3rem;
-    margin-bottom: 10px;
-}
-.hero p {
-    font-size: 1.3rem;
-    color: #bbb;
-}
-
-.section-title {
-    font-size: 2rem;
-    margin-bottom: 20px;
-    text-align: center;
-}
-
-.terminal {
-    background: #000;
-    color: #0f0;
-    padding: 20px;
-    border-radius: 10px;
-    font-family: monospace;
-    font-size: 1rem;
-    border: 1px solid #0f0;
-    max-width: 900px;
-    margin: 40px auto;
-    white-space: pre-wrap;
-}
+.hero { padding:80px 20px; text-align:center; background:#111; }
+.section-title { font-size:2rem; text-align:center; margin-bottom:20px; }
+.terminal { background:#000; color:#0f0; padding:20px; border-radius:10px;
+            font-family:monospace; border:1px solid #0f0; max-width:900px; margin:auto; white-space:pre-wrap; }
 </style>
 </head>
 
@@ -55,55 +26,24 @@
 
 <div class="hero">
     <h1>Il linguaggio. Il sistema operativo. L’ecosistema vivente.</h1>
-    <p>ZEN è un framework auto-generante, auto-riparante e auto-pubblicante.</p>
+    <p>ZEN ora include un terminale reale nel browser.</p>
 </div>
 
 <div class="section">
-    <h2 class="section-title">Cos’è ZEN?</h2>
-    <p>
-        ZEN è un ecosistema completo che include un linguaggio di programmazione,
-        una virtual machine, un compilatore, un sistema operativo modulare e un
-        ambiente di sviluppo auto-ottimizzante. Ogni componente può evolvere,
-        ricostruirsi e sincronizzarsi automaticamente.
-    </p>
-</div>
+    <h2 class="section-title">Terminale ZEN (reale)</h2>
 
-<div class="section">
-    <h2 class="section-title">Caratteristiche principali</h2>
-
-    <div class="card"><h3>🧠 Linguaggio ZEN</h3><p>Stack-based, minimale, estensibile, con bytecode.</p></div>
-    <div class="card"><h3>⚙️ zVM</h3><p>Virtual Machine ottimizzata per esecuzione rapida e sicura.</p></div>
-    <div class="card"><h3>🧩 Moduli</h3><p>zASM, zNET, zSEC, zFS, zDB, zUI, zAI e molti altri.</p></div>
-    <div class="card"><h3>🖥 zOS</h3><p>Micro-sistema operativo con kernel, servizi e shell.</p></div>
-    <div class="card"><h3>🔧 Autobuild</h3><p>Compilazione totale automatica con un solo comando.</p></div>
-</div>
-
-<div class="section">
-    <h2 class="section-title">Terminale ZEN (simulato)</h2>
-
-    <div class="terminal">
-$ zen compile "10 20 + print"
-Compiling...
-Bytecode: [10, 20, "+", "print"]
-Running...
-30
-
-$ zen os boot
-zOS booting...
-Kernel online.
-Services loaded: logger, networkd, timed, registry.
-
-$ zen module list
-[zvm, zasm, znet, zsec, zboot, zai, zdb, zfs, zui, zos, zos_services]
-
-$ zen info
-ZEN Framework v1.0 — Ecosistema auto-generante
+    <div id="zen-terminal" class="terminal">
+$ Benvenuto nel terminale ZEN
+$ Digita un comando e premi INVIO
     </div>
+
+    <input id="zen-input"
+           style="width:100%; padding:10px; margin-top:10px; font-family:monospace;"
+           placeholder="Esempio: 10 20 + print">
 </div>
 
-<footer style="text-align:center; padding:20px; color:#666;">
-    ZEN Framework — Created by High
-</footer>
+<script src="terminal.js"></script>
+<script>zen_terminal_init()</script>
 
 </body>
 </html>
